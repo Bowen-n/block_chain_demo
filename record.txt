@@ -1,0 +1,27 @@
+固定参数: 
+每个用户每轮查询块次数为100
+
+每个实验作300次
+
+1. 测量不同恶意节点比例（10%-40%）条件下，统计分叉攻击成功的长度
+Benign: 18; Malicious: 2; Suc prob: 0.0005; Attack len: 10.0
+Benign: 16; Malicious: 4; Suc prob: 0.0005; Attack len: 9.0
+Benign: 14; Malicious: 6; Suc prob: 0.0005; Attack len: 4.0
+Benign: 12; Malicious: 8; Suc prob: 0.0005; Attack len: 3.0
+
+
+2. 测量区块链的增长速度与节点数量的关系
+Benign: 2; Suc prob: 5e-05; Speed: 1 block / 84.69 rounds
+Benign: 5; Suc prob: 5e-05; Speed: 1 block / 39.94 rounds
+Benign: 8; Suc prob: 5e-05; Speed: 1 block / 24.68 rounds
+Benign: 11; Suc prob: 5e-05; Speed: 1 block / 17.87 rounds
+Benign: 20; Suc prob: 5e-05; Speed: 1 block / 10.19 rounds
+Benign: 50; Suc prob: 5e-05; Speed: 1 block / 4.39 rounds
+
+
+3. 测量区块链增长速度与每次查询出块成功率的关系
+Benign: 4; Suc prob: 1e-05; Speed: 1 block / 141.47 rounds
+Benign: 4; Suc prob: 5e-05; Speed: 1 block / 43.05 rounds
+Benign: 4; Suc prob: 0.0001; Speed: 1 block / 23.70 rounds
+Benign: 4; Suc prob: 0.0005; Speed: 1 block / 5.39 rounds
+Benign: 4; Suc prob: 0.001; Speed: 1 block / 2.98 rounds
