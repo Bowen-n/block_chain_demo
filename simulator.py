@@ -104,7 +104,7 @@ class BlockChains(object):
         return ret_str
 
 
-def test_attack():
+def test_attack(exp_times):
     # arguments
     num_benigns = [18, 16, 14, 12]
     num_malicious_s = [2, 4, 6, 8]
@@ -113,9 +113,8 @@ def test_attack():
     for num_benign, num_malicious in zip(num_benigns, num_malicious_s):
 
         # do 300 experiments
-        for _ in range(300):
-            statistics = 0
-            counts = 0
+        statistics = 0
+        for _ in range(exp_times):
 
             benign_miners = [
                 Miner(name='benign_{}'.format(i), type='benign', suc_prob=suc_prob) for i in range(num_benign)]
@@ -144,25 +143,24 @@ def test_attack():
 
                 if block_chains.check_attacked():
                     statistics += block_chains.max_len
-                    counts += 1
                     break
 
-        print('Benign: {}; Malicious: {}; Suc prob: {}; Attack len: {}'.format(
-            num_benign, num_malicious, suc_prob, statistics/counts))
+        print('Benign: {}; Malicious: {}; Suc prob: {}; Attack len: {:.2f}'.format(
+            num_benign, num_malicious, suc_prob, statistics/exp_times))
 
 
-def test_num_nodes():
-    num_rounds = 200
+def test_num_nodes(exp_times):
+    num_rounds = 300
 
     # arguments
-    num_benigns = [2, 5, 8, 11, 20, 50]
+    num_benigns = [2, 5, 8, 11, 20, 50, 80]
     suc_prob = 5e-5
 
     for num_benign in num_benigns:
         speed_statistics = 0.0
 
         # do 300 experiments
-        for _ in range(300):
+        for _ in range(exp_times):
             statistics = 0
             counts = 0
 
@@ -191,21 +189,22 @@ def test_num_nodes():
         
         # end 300 experiments
         print('Benign: {}; Suc prob: {}; Speed: 1 block / {:.2f} rounds'.format(
-            num_benign, suc_prob, speed_statistics/300))
+            num_benign, suc_prob, speed_statistics/exp_times))
 
 
-def test_prob():
-    num_rounds = 200
+def test_prob(exp_times):
+    num_rounds = 25
 
     # arguments
     num_benign = 4
-    suc_probs = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
+    # suc_probs = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
+    suc_probs = [0.005]
 
     for suc_prob in suc_probs:
         speed_statistics = 0.0
 
         # do 300 experiments
-        for _ in range(300):
+        for _ in range(exp_times):
             statistics = 0
             counts = 0
 
@@ -234,11 +233,11 @@ def test_prob():
         
         # end 300 experiments
         print('Benign: {}; Suc prob: {}; Speed: 1 block / {:.2f} rounds'.format(
-            num_benign, suc_prob, speed_statistics/300))
+            num_benign, suc_prob, speed_statistics/exp_times))
 
 
 if __name__ == '__main__':
-    # test_attack()
-    # test_num_nodes()
-    test_prob()
+    # test_attack(exp_times=1000)
+    # test_num_nodes(exp_times=500)
+    test_prob(exp_times=500)
 
