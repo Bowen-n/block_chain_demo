@@ -1,6 +1,7 @@
 import time
 import random
 import copy
+import tqdm
 
 
 class Block(object):
@@ -61,6 +62,14 @@ class Chain(object):
             if block.miner.type == 'malicious':
                 return True
         return False
+    
+    def count_attacked(self):
+        ''' Count the number of blocks created by malicious nodes '''
+        count = 0
+        for block in self.blocks:
+            if block.miner.type == 'malicious':
+                count += 1
+        return count
 
     def __str__(self):
         ret_str = ''
@@ -95,6 +104,9 @@ class BlockChains(object):
             if chain.check_attacked() == False:
                 return False
         return True
+    
+    def count_attacked(self):
+        return self.chains[0].count_attacked()
 
     def __str__(self):
         ''' Overload print '''
@@ -104,17 +116,17 @@ class BlockChains(object):
         return ret_str
 
 
-def test_attack(exp_times):
+def test_attack_len(exp_times):
     # arguments
     num_benigns = [18, 16, 14, 12]
     num_malicious_s = [2, 4, 6, 8]
-    suc_prob = 5e-4
+    suc_prob = 5e-5
 
     for num_benign, num_malicious in zip(num_benigns, num_malicious_s):
 
-        # do 300 experiments
+        # do 500 experiments
         statistics = 0
-        for _ in range(exp_times):
+        for _ in tqdm.tqdm(range(exp_times)):
 
             benign_miners = [
                 Miner(name='benign_{}'.format(i), type='benign', suc_prob=suc_prob) for i in range(num_benign)]
@@ -149,6 +161,52 @@ def test_attack(exp_times):
             num_benign, num_malicious, suc_prob, statistics/exp_times))
 
 
+def test_attack_rate(exp_times):
+    num_rounds = 200
+
+    # arguments
+    num_benigns = [18, 16, 14, 12]
+    num_malicious_s = [2, 4, 6, 8]
+    suc_prob = 5e-5
+
+    for num_benign, num_malicious in zip(num_benigns, num_malicious_s):
+
+        # do 500 experiments
+        statistics = 0
+        for _ in tqdm.tqdm(range(exp_times)):
+
+            benign_miners = [
+                Miner(name='benign_{}'.format(i), type='benign', suc_prob=suc_prob) for i in range(num_benign)]
+            malicious_miners = [
+                Miner(name='malicious_{}'.format(i), type='malicious', suc_prob=suc_prob) for i in range(num_malicious)]
+
+            block_chains = BlockChains()
+
+            # keep running until attacked
+            for rd in range(num_rounds):
+                updated_chains = []
+                # mine
+                for miner in benign_miners:
+                    updated_chains.append(miner.mine_block(block_chains))
+                for miner in malicious_miners:
+                    updated_chains.append(miner.mine_block(block_chains))
+                
+                # get max len
+                maxlen = 0
+                for chain in updated_chains:
+                    if len(chain) > maxlen:
+                        maxlen = len(chain)
+
+                if maxlen > block_chains.max_len:
+                    block_chains.update(list(filter(lambda x: len(x) == maxlen, updated_chains)), maxlen)
+
+            # count malicous blocks rate
+            statistics += (block_chains.count_attacked() / block_chains.max_len)
+
+        print('Benign: {}; Malicious: {}; Suc prob: {}; Attack rate: {:.4f}'.format(
+            num_benign, num_malicious, suc_prob, statistics/exp_times))
+
+
 def test_num_nodes(exp_times):
     num_rounds = 300
 
@@ -159,8 +217,8 @@ def test_num_nodes(exp_times):
     for num_benign in num_benigns:
         speed_statistics = 0.0
 
-        # do 300 experiments
-        for _ in range(exp_times):
+        # do 500 experiments
+        for _ in tqdm.tqdm(range(exp_times)):
             statistics = 0
             counts = 0
 
@@ -193,17 +251,16 @@ def test_num_nodes(exp_times):
 
 
 def test_prob(exp_times):
-    num_rounds = 25
+    num_rounds = 300
 
     # arguments
     num_benign = 4
-    # suc_probs = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3]
-    suc_probs = [0.005]
+    suc_probs = [1e-5, 5e-5, 1e-4, 5e-4, 1e-3, 0.0025, 0.005]
 
     for suc_prob in suc_probs:
         speed_statistics = 0.0
 
-        # do 300 experiments
+        # do 500 experiments
         for _ in range(exp_times):
             statistics = 0
             counts = 0
@@ -237,7 +294,8 @@ def test_prob(exp_times):
 
 
 if __name__ == '__main__':
-    # test_attack(exp_times=1000)
+    # test_attack_len(exp_times=500)
+    test_attack_rate(exp_times=500)
     # test_num_nodes(exp_times=500)
-    test_prob(exp_times=500)
+    # test_prob(exp_times=500)
 
